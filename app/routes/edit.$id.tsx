@@ -1,4 +1,4 @@
-import { data, redirect, useActionData } from "react-router";
+import { redirect, useActionData } from "react-router";
 import { flattenError } from "zod";
 
 import type { Route } from "./+types/edit.$id";
@@ -20,7 +20,7 @@ export function meta(_: Route.MetaArgs) {
 export async function loader({ params }: Route.LoaderArgs) {
   await connectDB();
   const doc = await ApplicationModel.findById(params.id).exec();
-  if (!doc) throw data("Application not found", { status: 404 });
+  if (!doc) throw new Response("Application not found", { status: 404 });
   return { application: serializeApplication(doc) };
 }
 
@@ -40,7 +40,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     parsed.data,
     { returnDocument: "after" }
   ).exec();
-  if (!updated) throw data("Application not found", { status: 404 });
+  if (!updated) throw new Response("Application not found", { status: 404 });
   return redirect(`/applications/${updated.slug}`);
 }
 

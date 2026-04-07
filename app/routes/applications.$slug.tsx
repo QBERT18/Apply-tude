@@ -1,10 +1,11 @@
-import { data, Link } from "react-router";
+import { Link } from "react-router";
 import { ArrowLeft, Mail, Phone, User } from "lucide-react";
 
 import type { Route } from "./+types/applications.$slug";
 import { buttonVariants } from "~/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -17,6 +18,10 @@ import {
   ApplicationModel,
   serializeApplication,
 } from "~/lib/models/application.model.server";
+import {
+  getStatusLabel,
+  STATUS_BADGE_CLASSES,
+} from "~/lib/schemas/application.schema";
 import { cn } from "~/lib/utils";
 
 export function meta({ data: loaderData }: Route.MetaArgs) {
@@ -29,7 +34,7 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
 export async function loader({ params }: Route.LoaderArgs) {
   await connectDB();
   const doc = await ApplicationModel.findOne({ slug: params.slug }).exec();
-  if (!doc) throw data("Application not found", { status: 404 });
+  if (!doc) throw new Response("Application not found", { status: 404 });
   return { application: serializeApplication(doc) };
 }
 
@@ -57,6 +62,16 @@ export default function ApplicationDetail({
           <CardDescription className="text-base">
             {application.companyName}
           </CardDescription>
+          <CardAction>
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium",
+                STATUS_BADGE_CLASSES[application.status]
+              )}
+            >
+              {getStatusLabel(application.status)}
+            </span>
+          </CardAction>
         </CardHeader>
 
         <CardContent className="space-y-6">

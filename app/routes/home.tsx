@@ -10,6 +10,10 @@ import {
   ApplicationModel,
   serializeApplication,
 } from "~/lib/models/application.model.server";
+import {
+  applicationStatusValues,
+  type ApplicationStatus,
+} from "~/lib/schemas/application.schema";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Apply-tude — Your applications" }];
@@ -24,6 +28,7 @@ export async function loader(_: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
+
   if (intent === "delete") {
     const id = String(formData.get("id") ?? "");
     if (id) {
@@ -32,6 +37,23 @@ export async function action({ request }: Route.ActionArgs) {
     }
     return { ok: true };
   }
+
+  if (intent === "update-status") {
+    const id = String(formData.get("id") ?? "");
+    const status = String(formData.get("status") ?? "");
+    if (
+      id &&
+      (applicationStatusValues as readonly string[]).includes(status)
+    ) {
+      await connectDB();
+      await ApplicationModel.findByIdAndUpdate(id, {
+        status: status as ApplicationStatus,
+      }).exec();
+      return { ok: true };
+    }
+    return { ok: false, error: "Invalid status" };
+  }
+
   return { ok: false };
 }
 

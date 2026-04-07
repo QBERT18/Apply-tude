@@ -5,6 +5,11 @@ import mongoose, {
 } from "mongoose";
 
 import type { SerializedApplication } from "./application.types";
+import {
+  applicationStatusValues,
+  DEFAULT_APPLICATION_STATUS,
+  type ApplicationStatus,
+} from "~/lib/schemas/application.schema";
 
 export interface IApplication {
   slug: string;
@@ -15,6 +20,7 @@ export interface IApplication {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
+  status: ApplicationStatus;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +53,12 @@ const ApplicationSchema = new Schema<IApplication>(
       trim: true,
       lowercase: true,
     },
+    status: {
+      type: String,
+      required: true,
+      enum: applicationStatusValues,
+      default: DEFAULT_APPLICATION_STATUS,
+    },
   },
   { timestamps: true }
 );
@@ -68,6 +80,7 @@ export function serializeApplication(
     contactName: doc.contactName,
     contactPhone: doc.contactPhone,
     contactEmail: doc.contactEmail,
+    status: doc.status,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

@@ -11,10 +11,19 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
-import type {
-  ApplicationFieldErrors,
-  ApplicationInput,
+import {
+  APPLICATION_STATUSES,
+  DEFAULT_APPLICATION_STATUS,
+  type ApplicationFieldErrors,
+  type ApplicationInput,
 } from "~/lib/schemas/application.schema";
 
 type ApplicationFormProps = {
@@ -104,6 +113,29 @@ export function ApplicationForm({
               defaultValue={defaultValues?.applicationEmail}
               errors={errors?.applicationEmail}
             />
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                name="status"
+                defaultValue={
+                  defaultValues?.status ?? DEFAULT_APPLICATION_STATUS
+                }
+              >
+                <SelectTrigger id="status" className="w-full">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {APPLICATION_STATUSES.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors?.status?.[0] ? (
+                <p className="text-xs text-destructive">{errors.status[0]}</p>
+              ) : null}
+            </div>
           </div>
 
           <Separator />

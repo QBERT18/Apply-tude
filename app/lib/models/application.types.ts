@@ -1,3 +1,5 @@
+import type { ApplicationStatus } from "~/lib/schemas/application.schema";
+
 export type SerializedApplication = {
   id: string;
   slug: string;
@@ -8,6 +10,7 @@ export type SerializedApplication = {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
+  status: ApplicationStatus;
   createdAt: string;
   updatedAt: string;
 };
