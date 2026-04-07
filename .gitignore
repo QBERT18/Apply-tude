@@ -8,3 +8,7 @@
 
 # Local Mongo data (Docker bind-mount)
 /mongo-data/
+
+# Claude Code agent harness state
+/.agents/
+/.claude/
