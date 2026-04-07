@@ -5,3 +5,6 @@
 # React Router
 /.react-router/
 /build/
+
+# Local Mongo data (Docker bind-mount)
+/mongo-data/
