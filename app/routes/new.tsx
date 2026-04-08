@@ -3,8 +3,7 @@ import { flattenError } from "zod";
 
 import type { Route } from "./+types/new";
 import { ApplicationForm } from "~/components/application-form";
-import { connectDB } from "~/lib/db.server";
-import { ApplicationModel } from "~/lib/models/application.model.server";
+import { createApplication } from "~/lib/models/application.queries.server";
 import {
   applicationSchema,
   type ApplicationInput,
@@ -25,12 +24,11 @@ export async function action({ request }: Route.ActionArgs) {
       values: raw as Partial<ApplicationInput>,
     };
   }
-  await connectDB();
   const slug = generateApplicationSlug(
     parsed.data.jobName,
     parsed.data.companyName
   );
-  await ApplicationModel.create({ ...parsed.data, slug });
+  await createApplication({ ...parsed.data, slug });
   return redirect(`/applications/${slug}`);
 }
 

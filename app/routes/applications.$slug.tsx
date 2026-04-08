@@ -13,16 +13,13 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { connectDB } from "~/lib/db.server";
-import {
-  ApplicationModel,
-  serializeApplication,
-} from "~/lib/models/application.model.server";
+import { getApplicationBySlug } from "~/lib/models/application.queries.server";
 import {
   getStatusLabel,
   STATUS_BADGE_CLASSES,
 } from "~/lib/schemas/application.schema";
 import { cn } from "~/lib/utils";
+import { formatDate } from "~/lib/utils/date";
 
 export function meta({ data: loaderData }: Route.MetaArgs) {
   const title = loaderData?.application
@@ -32,18 +29,18 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  await connectDB();
-  const doc = await ApplicationModel.findOne({ slug: params.slug }).exec();
-  if (!doc) throw new Response("Application not found", { status: 404 });
-  return { application: serializeApplication(doc) };
+  const application = await getApplicationBySlug(params.slug);
+  if (!application)
+    throw new Response("Application not found", { status: 404 });
+  return { application };
 }
 
 export default function ApplicationDetail({
   loaderData,
 }: Route.ComponentProps) {
   const { application } = loaderData;
-  const created = new Date(application.createdAt).toLocaleDateString();
-  const updated = new Date(application.updatedAt).toLocaleDateString();
+  const created = formatDate(application.createdAt);
+  const updated = formatDate(application.updatedAt);
 
   return (
     <div className="space-y-4">

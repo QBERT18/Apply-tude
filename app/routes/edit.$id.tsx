@@ -3,11 +3,10 @@ import { flattenError } from "zod";
 
 import type { Route } from "./+types/edit.$id";
 import { ApplicationForm } from "~/components/application-form";
-import { connectDB } from "~/lib/db.server";
 import {
-  ApplicationModel,
-  serializeApplication,
-} from "~/lib/models/application.model.server";
+  getApplicationById,
+  updateApplication,
+} from "~/lib/models/application.queries.server";
 import {
   applicationSchema,
   type ApplicationInput,
@@ -18,10 +17,10 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  await connectDB();
-  const doc = await ApplicationModel.findById(params.id).exec();
-  if (!doc) throw new Response("Application not found", { status: 404 });
-  return { application: serializeApplication(doc) };
+  const application = await getApplicationById(params.id);
+  if (!application)
+    throw new Response("Application not found", { status: 404 });
+  return { application };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
@@ -34,12 +33,7 @@ export async function action({ request, params }: Route.ActionArgs) {
       values: raw as Partial<ApplicationInput>,
     };
   }
-  await connectDB();
-  const updated = await ApplicationModel.findByIdAndUpdate(
-    params.id,
-    parsed.data,
-    { returnDocument: "after" }
-  ).exec();
+  const updated = await updateApplication(params.id, parsed.data);
   if (!updated) throw new Response("Application not found", { status: 404 });
   return redirect(`/applications/${updated.slug}`);
 }
@@ -52,6 +46,7 @@ export default function EditApplication({ loaderData }: Route.ComponentProps) {
       submitLabel="Save changes"
       defaultValues={actionData?.values ?? application}
       errors={actionData?.errors}
+      cancelHref={`/applications/${application.slug}`}
     />
   );
 }

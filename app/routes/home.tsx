@@ -5,11 +5,11 @@ import type { Route } from "./+types/home";
 import { ApplicationCard } from "~/components/application-card";
 import { buttonVariants } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import { connectDB } from "~/lib/db.server";
 import {
-  ApplicationModel,
-  serializeApplication,
-} from "~/lib/models/application.model.server";
+  deleteApplication,
+  listApplications,
+  updateApplicationStatus,
+} from "~/lib/models/application.queries.server";
 import {
   applicationStatusValues,
   type ApplicationStatus,
@@ -20,9 +20,7 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader(_: Route.LoaderArgs) {
-  await connectDB();
-  const docs = await ApplicationModel.find().sort({ updatedAt: -1 }).exec();
-  return { applications: docs.map(serializeApplication) };
+  return { applications: await listApplications() };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -32,8 +30,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (intent === "delete") {
     const id = String(formData.get("id") ?? "");
     if (id) {
-      await connectDB();
-      await ApplicationModel.findByIdAndDelete(id).exec();
+      await deleteApplication(id);
     }
     return { ok: true };
   }
@@ -45,10 +42,7 @@ export async function action({ request }: Route.ActionArgs) {
       id &&
       (applicationStatusValues as readonly string[]).includes(status)
     ) {
-      await connectDB();
-      await ApplicationModel.findByIdAndUpdate(id, {
-        status: status as ApplicationStatus,
-      }).exec();
+      await updateApplicationStatus(id, status as ApplicationStatus);
       return { ok: true };
     }
     return { ok: false, error: "Invalid status" };
@@ -79,7 +73,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
       {applications.map((app) => (
         <ApplicationCard key={app.id} app={app} />
       ))}

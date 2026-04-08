@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
+import { formatDate } from "~/lib/utils/date";
 import type { SerializedApplication } from "~/lib/models/application.types";
 import {
   APPLICATION_STATUSES,
@@ -119,6 +120,10 @@ export function ApplicationCard({ app }: { app: SerializedApplication }) {
           <div className="font-medium">{app.contactName}</div>
           <div className="text-muted-foreground">{app.contactPhone}</div>
           <div className="text-muted-foreground">{app.contactEmail}</div>
+        </div>
+        <div className="flex gap-x-4 border-t pt-3 text-xs whitespace-nowrap text-muted-foreground">
+          <div>Created {formatDate(app.createdAt)}</div>
+          <div>Last updated {formatDate(app.updatedAt)}</div>
         </div>
       </CardContent>
       <CardFooter className="justify-between border-t pt-6">
