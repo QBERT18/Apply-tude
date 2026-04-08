@@ -35,7 +35,7 @@ docker compose up -d
 
 # 3. Create your .env from the template
 cp .env.example .env
-# then open .env and fill in MONGODB_URI_PROD with your Atlas string
+# then open .env and fill in MONGODB_URI with your Atlas string
 # (MONGODB_URI_DEV stays at the default localhost value)
 
 # 4. Run the dev server
@@ -51,14 +51,14 @@ The project distinguishes between local development and production via two named
 | Variable | When it's used | Where it lives |
 |---|---|---|
 | `MONGODB_URI_DEV` | Local development (`NODE_ENV !== "production"`) | Your local `.env` file |
-| `MONGODB_URI_PROD` | Production (`NODE_ENV === "production"`) | **Vercel dashboard** (and optionally your local `.env` for testing) |
+| `MONGODB_URI` | Production (`NODE_ENV === "production"`) | **Vercel dashboard** (and optionally your local `.env` for testing) |
 
 The selection happens in [`app/lib/db.server.ts`](app/lib/db.server.ts):
 
 ```ts
 const isProduction = process.env.NODE_ENV === "production";
 const MONGODB_URI = requireEnv(
-  isProduction ? "MONGODB_URI_PROD" : "MONGODB_URI_DEV"
+  isProduction ? "MONGODB_URI" : "MONGODB_URI_DEV"
 );
 ```
 
@@ -114,12 +114,12 @@ The app is set up to run on Vercel out of the box. Steps:
 3. Vercel auto-detects the React Router framework — no build settings to change.
 4. **Add your environment variable**:
    - Settings → Environment Variables
-   - Name: `MONGODB_URI_PROD`
+   - Name: `MONGODB_URI`
    - Value: your MongoDB Atlas connection string
    - Scope: **Production** (and optionally **Preview** if you want PR deploys to use the same DB)
 5. **Deploy**.
 
-You do **not** need to add `MONGODB_URI_DEV` on Vercel — production code never reads it. Vercel sets `NODE_ENV=production` automatically, which makes the app pick `MONGODB_URI_PROD` from the dashboard env vars.
+You do **not** need to add `MONGODB_URI_DEV` on Vercel — production code never reads it. Vercel sets `NODE_ENV=production` automatically, which makes the app pick `MONGODB_URI` from the dashboard env vars.
 
 Make sure your **MongoDB Atlas cluster allows connections from `0.0.0.0/0`** (or from Vercel's IP range) under Network Access, otherwise the app won't be able to connect.
 
@@ -131,7 +131,7 @@ If you'd rather host the app yourself, the included [`Dockerfile`](Dockerfile) b
 docker build -t apply-tude .
 docker run -p 3000:3000 \
   -e NODE_ENV=production \
-  -e MONGODB_URI_PROD="your-atlas-connection-string" \
+  -e MONGODB_URI="your-atlas-connection-string" \
   apply-tude
 ```
 

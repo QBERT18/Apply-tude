@@ -10,7 +10,7 @@ function requireEnv(name: string): string {
 
 const isProduction = process.env.NODE_ENV === "production";
 const MONGODB_URI = requireEnv(
-  isProduction ? "MONGODB_URI_PROD" : "MONGODB_URI_DEV"
+  isProduction ? "MONGODB_URI" : "MONGODB_URI_DEV"
 );
 
 type MongooseCache = {
