@@ -28,10 +28,29 @@ export type ApplicationSortField =
 export type ApplicationSortDirection = "asc" | "desc";
 
 export type ListApplicationsParams = {
-  from?: string;
-  to?: string;
   categories?: string[];
   statuses?: ApplicationStatus[];
   sort?: ApplicationSortField;
   direction?: ApplicationSortDirection;
+};
+
+// ---- UI / presentation types ------------------------------------------------
+
+export type Theme = "light" | "dark";
+
+export type ViewMode = "grid" | "list";
+
+export type ApplicationCardProps = {
+  app: SerializedApplication;
+  variant?: ViewMode;
+};
+
+export type ThemeToggleProps = {
+  className?: string;
+};
+
+export type ViewToggleProps = {
+  value: ViewMode;
+  onChange: (value: ViewMode) => void;
+  className?: string;
 };

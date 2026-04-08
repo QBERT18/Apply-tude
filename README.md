@@ -1,6 +1,6 @@
 # Apply-tude
 
-A personal job-application tracker. Save the postings you care about, track their status from "saved" all the way to "accepted" or "rejected", tag them with your own free-form categories, and filter and sort everything from a sidebar with a date-range calendar.
+A personal job-application tracker. Save the postings you care about, track their status from "saved" all the way to "accepted" or "rejected", tag them with your own free-form categories, and filter and sort everything from a sidebar.
 
 ![Apply-tude logo](public/logo.png)
 
@@ -142,7 +142,7 @@ app/
 ├── components/
 │   ├── form/                # Form-only components (chip input, etc.)
 │   ├── layout/              # AppSidebar and its sibling .types.ts
-│   ├── ui/                  # shadcn primitives (Field, Sidebar, Calendar, ...)
+│   ├── ui/                  # shadcn primitives (Field, Sidebar, ...)
 │   ├── application-card.tsx # Card shown on the home grid
 │   └── application-form.tsx # The shared create/edit form
 ├── hooks/                   # Custom hooks (use-mobile, ...)
@@ -166,7 +166,7 @@ A few rules the codebase follows that aren't obvious from a glance:
 
 - **No type or interface declarations in `.tsx` files.** Component prop types live in sibling `*.types.ts` files (e.g. `app-sidebar.types.ts`). Domain types live in [`app/lib/models/application.types.ts`](app/lib/models/application.types.ts). Constants live in [`app/lib/constants/`](app/lib/constants/). Zod schemas live in [`app/lib/schemas/`](app/lib/schemas/) and that file holds *only* the schema and its inferred types.
 - **Database calls only in `.server.ts` files.** Routes never call Mongoose directly — they go through helpers in [`app/lib/models/application.queries.server.ts`](app/lib/models/application.queries.server.ts).
-- **Filter and sort state lives in URL search params**, not React state. The home loader reads `from`/`to`/`category`/`status`/`sort`/`dir` from the request URL and passes them into the query layer.
+- **Filter and sort state lives in URL search params**, not React state. The home loader reads `category`/`status`/`sort`/`dir` from the request URL and passes them into the query layer.
 
 ## License
 

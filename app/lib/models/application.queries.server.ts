@@ -10,37 +10,12 @@ import type {
 } from "~/lib/models/application.types";
 import type { ApplicationInput } from "~/lib/schemas/application.schema";
 
-function parseDayBoundary(value: string, end: boolean): Date | null {
-  // Parse YYYY-MM-DD as UTC midnight; for "end" use the last ms of that day.
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return null;
-  const [, y, m, d] = match;
-  return end
-    ? new Date(Date.UTC(+y, +m - 1, +d, 23, 59, 59, 999))
-    : new Date(Date.UTC(+y, +m - 1, +d, 0, 0, 0, 0));
-}
-
 export async function listApplications(
   params: ListApplicationsParams = {}
 ): Promise<SerializedApplication[]> {
   await connectDB();
 
   const filter: Record<string, unknown> = {};
-
-  if (params.from || params.to) {
-    const from = params.from ? parseDayBoundary(params.from, false) : null;
-    const to = params.to
-      ? parseDayBoundary(params.to, true)
-      : params.from
-        ? parseDayBoundary(params.from, true)
-        : null;
-    const range: Record<string, Date> = {};
-    if (from) range.$gte = from;
-    if (to) range.$lte = to;
-    if (Object.keys(range).length > 0) {
-      filter.createdAt = range;
-    }
-  }
 
   if (params.categories && params.categories.length > 0) {
     filter.categories = { $in: params.categories };

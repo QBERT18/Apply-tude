@@ -8,6 +8,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { listAllCategories } from "~/lib/models/application.queries.server";
 
@@ -37,6 +38,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
                 className="h-auto w-full object-contain"
               />
             </Link>
+            <ThemeToggle className="ml-auto" />
           </header>
           <main className="flex-1">
             <div className="container mx-auto w-full max-w-5xl px-4 pt-8 pb-16">
