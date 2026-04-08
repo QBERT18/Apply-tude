@@ -11,6 +11,14 @@ export const APPLICATION_STATUSES = [
 
 export type ApplicationStatus = (typeof APPLICATION_STATUSES)[number]["value"];
 
+export const APPLICATION_SORT_OPTIONS = [
+  { value: "updatedAt", label: "Last updated" },
+  { value: "createdAt", label: "Created" },
+  { value: "jobName", label: "Job name" },
+  { value: "companyName", label: "Company" },
+  { value: "contactName", label: "Contact" },
+] as const;
+
 export const applicationStatusValues = APPLICATION_STATUSES.map(
   (s) => s.value
 ) as [ApplicationStatus, ...ApplicationStatus[]];

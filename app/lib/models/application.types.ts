@@ -17,3 +17,21 @@ export type SerializedApplication = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type ApplicationSortField =
+  | "updatedAt"
+  | "createdAt"
+  | "jobName"
+  | "companyName"
+  | "contactName";
+
+export type ApplicationSortDirection = "asc" | "desc";
+
+export type ListApplicationsParams = {
+  from?: string;
+  to?: string;
+  categories?: string[];
+  statuses?: ApplicationStatus[];
+  sort?: ApplicationSortField;
+  direction?: ApplicationSortDirection;
+};

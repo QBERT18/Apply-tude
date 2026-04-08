@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Plus } from "lucide-react";
 
 import type { Route } from "./+types/home";
@@ -11,14 +11,43 @@ import {
   updateApplicationStatus,
 } from "~/lib/models/application.queries.server";
 import { applicationStatusValues } from "~/lib/constants/application.constants";
-import type { ApplicationStatus } from "~/lib/models/application.types";
+import type {
+  ApplicationSortField,
+  ApplicationStatus,
+} from "~/lib/models/application.types";
+
+const SORT_FIELDS: readonly ApplicationSortField[] = [
+  "updatedAt",
+  "createdAt",
+  "jobName",
+  "companyName",
+  "contactName",
+];
+
+function parseSortField(value: string | null): ApplicationSortField | undefined {
+  return SORT_FIELDS.includes(value as ApplicationSortField)
+    ? (value as ApplicationSortField)
+    : undefined;
+}
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Apply-tude — Your applications" }];
 }
 
-export async function loader(_: Route.LoaderArgs) {
-  return { applications: await listApplications() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const sp = url.searchParams;
+
+  const applications = await listApplications({
+    from: sp.get("from") ?? undefined,
+    to: sp.get("to") ?? undefined,
+    categories: sp.getAll("category"),
+    statuses: sp.getAll("status") as ApplicationStatus[],
+    sort: parseSortField(sp.get("sort")),
+    direction: sp.get("dir") === "asc" ? "asc" : "desc",
+  });
+
+  return { applications };
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -51,30 +80,47 @@ export async function action({ request }: Route.ActionArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { applications } = loaderData;
-
-  if (applications.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
-          <h2 className="font-heading text-xl font-semibold">
-            No applications yet
-          </h2>
-          <p className="text-muted-foreground">
-            Track your first job application to get started.
-          </p>
-          <Link to="/new" className={buttonVariants()}>
-            <Plus /> New application
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
+  const [searchParams] = useSearchParams();
+  const isFiltered = searchParams.size > 0;
 
   return (
-    <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
-      {applications.map((app) => (
-        <ApplicationCard key={app.id} app={app} />
-      ))}
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Link to="/new" className={buttonVariants()}>
+          <Plus /> New application
+        </Link>
+      </div>
+
+      {applications.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+            <h2 className="font-heading text-xl font-semibold">
+              {isFiltered
+                ? "No applications match your filters"
+                : "No applications yet"}
+            </h2>
+            <p className="text-muted-foreground">
+              {isFiltered
+                ? "Try adjusting or clearing the filters in the sidebar."
+                : "Track your first job application to get started."}
+            </p>
+            {isFiltered ? (
+              <Link
+                to="/"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                Clear filters
+              </Link>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
+          {applications.map((app) => (
+            <ApplicationCard key={app.id} app={app} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
