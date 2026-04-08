@@ -3,8 +3,10 @@ import { Plus } from "lucide-react";
 
 import type { Route } from "./+types/home";
 import { ApplicationCard } from "~/components/application-card";
+import { ViewToggle } from "~/components/view-toggle";
 import { buttonVariants } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { useViewMode } from "~/hooks/use-view-mode";
 import {
   deleteApplication,
   listApplications,
@@ -39,8 +41,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sp = url.searchParams;
 
   const applications = await listApplications({
-    from: sp.get("from") ?? undefined,
-    to: sp.get("to") ?? undefined,
     categories: sp.getAll("category"),
     statuses: sp.getAll("status") as ApplicationStatus[],
     sort: parseSortField(sp.get("sort")),
@@ -82,10 +82,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const { applications } = loaderData;
   const [searchParams] = useSearchParams();
   const isFiltered = searchParams.size > 0;
+  const { view, setView } = useViewMode();
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-2">
+        <ViewToggle value={view} onChange={setView} />
         <Link to="/new" className={buttonVariants()}>
           <Plus /> New application
         </Link>
@@ -114,6 +116,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             ) : null}
           </CardContent>
         </Card>
+      ) : view === "list" ? (
+        <div className="flex flex-col gap-3">
+          {applications.map((app) => (
+            <ApplicationCard key={app.id} app={app} variant="list" />
+          ))}
+        </div>
       ) : (
         <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(20rem,1fr))]">
           {applications.map((app) => (

@@ -1,9 +1,6 @@
-import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import type { DateRange } from "react-day-picker";
 import { Check, ChevronRight, X } from "lucide-react";
 
-import { Calendar } from "~/components/ui/calendar";
 import {
   Collapsible,
   CollapsibleContent,
@@ -71,77 +68,21 @@ function setSingleValue(
   return next;
 }
 
-function formatDateParam(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function parseDateParam(value: string | null): Date | undefined {
-  if (!value) return undefined;
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-  if (!match) return undefined;
-  return new Date(+match[1], +match[2] - 1, +match[3]);
-}
-
 export function AppSidebar({ allCategories, ...props }: AppSidebarProps) {
   return (
     <Sidebar {...props}>
       <SidebarContent>
-        <SidebarDateRangeFilter />
-        <SidebarSeparator className="mx-0" />
-        <SidebarCategoryFilter allCategories={allCategories} />
+        <SidebarSortOptions />
         <SidebarSeparator className="mx-0" />
         <SidebarStatusFilter />
         <SidebarSeparator className="mx-0" />
-        <SidebarSortOptions />
+        <SidebarCategoryFilter allCategories={allCategories} />
       </SidebarContent>
       <SidebarFooter>
         <ClearFiltersButton />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
-}
-
-function SidebarDateRangeFilter() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const range: DateRange | undefined = useMemo(() => {
-    const from = parseDateParam(searchParams.get("from"));
-    const to = parseDateParam(searchParams.get("to"));
-    if (!from && !to) return undefined;
-    return { from, to };
-  }, [searchParams]);
-
-  function handleSelect(next: DateRange | undefined) {
-    const params = new URLSearchParams(searchParams);
-    if (next?.from) {
-      params.set("from", formatDateParam(next.from));
-    } else {
-      params.delete("from");
-    }
-    if (next?.to) {
-      params.set("to", formatDateParam(next.to));
-    } else {
-      params.delete("to");
-    }
-    setSearchParams(params);
-  }
-
-  return (
-    <SidebarGroup className="px-0">
-      <SidebarGroupContent>
-        <Calendar
-          mode="range"
-          selected={range}
-          onSelect={handleSelect}
-          captionLayout="dropdown"
-          className="bg-transparent [--cell-size:2rem]"
-        />
-      </SidebarGroupContent>
-    </SidebarGroup>
   );
 }
 
