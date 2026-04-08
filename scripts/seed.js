@@ -1,7 +1,14 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ?? "mongodb://localhost:27017/applytude";
+// Defaults to the local dev DB. To seed the production DB instead,
+// run: NODE_ENV=production node --env-file=.env scripts/seed.js
+const isProduction = process.env.NODE_ENV === "production";
+const envVar = isProduction ? "MONGODB_URI_PROD" : "MONGODB_URI_DEV";
+const MONGODB_URI = process.env[envVar];
+if (!MONGODB_URI) {
+  console.error(`${envVar} is not set. Run with: node --env-file=.env scripts/seed.js`);
+  process.exit(1);
+}
 
 const ApplicationSchema = new mongoose.Schema(
   {

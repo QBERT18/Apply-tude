@@ -1,7 +1,17 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ?? "mongodb://localhost:27017/applytude";
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} is not set. Add it to your .env file.`);
+  }
+  return value;
+}
+
+const isProduction = process.env.NODE_ENV === "production";
+const MONGODB_URI = requireEnv(
+  isProduction ? "MONGODB_URI_PROD" : "MONGODB_URI_DEV"
+);
 
 type MongooseCache = {
   conn: typeof mongoose | null;
