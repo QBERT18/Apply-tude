@@ -5,6 +5,7 @@ import type { Route } from "./+types/edit.$id";
 import { ApplicationForm } from "~/components/application-form";
 import {
   getApplicationById,
+  listAllCategories,
   updateApplication,
 } from "~/lib/models/application.queries.server";
 import {
@@ -17,15 +18,24 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const application = await getApplicationById(params.id);
+  const [application, allCategories] = await Promise.all([
+    getApplicationById(params.id),
+    listAllCategories(),
+  ]);
   if (!application)
     throw new Response("Application not found", { status: 404 });
-  return { application };
+  return { application, allCategories };
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
   const formData = await request.formData();
-  const raw = Object.fromEntries(formData);
+  const webpage = String(formData.get("companyWebpage") ?? "").trim();
+  const raw = {
+    ...Object.fromEntries(formData),
+    companyWebpage:
+      webpage && !/^https?:\/\//i.test(webpage) ? `https://${webpage}` : webpage,
+    categories: formData.getAll("categories") as string[],
+  };
   const parsed = applicationSchema.safeParse(raw);
   if (!parsed.success) {
     return {
@@ -40,13 +50,14 @@ export async function action({ request, params }: Route.ActionArgs) {
 
 export default function EditApplication({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
-  const { application } = loaderData;
+  const { application, allCategories } = loaderData;
   return (
     <ApplicationForm
       submitLabel="Save changes"
       defaultValues={actionData?.values ?? application}
       errors={actionData?.errors}
       cancelHref={`/applications/${application.slug}`}
+      allCategories={allCategories}
     />
   );
 }

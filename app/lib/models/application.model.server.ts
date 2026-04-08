@@ -9,7 +9,7 @@ import {
   applicationStatusValues,
   DEFAULT_APPLICATION_STATUS,
   type ApplicationStatus,
-} from "~/lib/schemas/application.schema";
+} from "~/lib/constants/application.constants";
 
 export interface IApplication {
   slug: string;
@@ -21,6 +21,7 @@ export interface IApplication {
   contactPhone: string;
   contactEmail: string;
   status: ApplicationStatus;
+  categories: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -59,6 +60,10 @@ const ApplicationSchema = new Schema<IApplication>(
       enum: applicationStatusValues,
       default: DEFAULT_APPLICATION_STATUS,
     },
+    categories: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
@@ -81,6 +86,7 @@ export function serializeApplication(
     contactPhone: doc.contactPhone,
     contactEmail: doc.contactEmail,
     status: doc.status,
+    categories: [...doc.categories],
     createdAt: doc.createdAt.toISOString(),
     updatedAt: doc.updatedAt.toISOString(),
   };

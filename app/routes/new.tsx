@@ -3,7 +3,10 @@ import { flattenError } from "zod";
 
 import type { Route } from "./+types/new";
 import { ApplicationForm } from "~/components/application-form";
-import { createApplication } from "~/lib/models/application.queries.server";
+import {
+  createApplication,
+  listAllCategories,
+} from "~/lib/models/application.queries.server";
 import {
   applicationSchema,
   type ApplicationInput,
@@ -14,9 +17,19 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "New application — Apply-tude" }];
 }
 
+export async function loader(_: Route.LoaderArgs) {
+  return { allCategories: await listAllCategories() };
+}
+
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const raw = Object.fromEntries(formData);
+  const webpage = String(formData.get("companyWebpage") ?? "").trim();
+  const raw = {
+    ...Object.fromEntries(formData),
+    companyWebpage:
+      webpage && !/^https?:\/\//i.test(webpage) ? `https://${webpage}` : webpage,
+    categories: formData.getAll("categories") as string[],
+  };
   const parsed = applicationSchema.safeParse(raw);
   if (!parsed.success) {
     return {
@@ -32,13 +45,14 @@ export async function action({ request }: Route.ActionArgs) {
   return redirect(`/applications/${slug}`);
 }
 
-export default function NewApplication() {
+export default function NewApplication({ loaderData }: Route.ComponentProps) {
   const actionData = useActionData<typeof action>();
   return (
     <ApplicationForm
       submitLabel="Create"
       errors={actionData?.errors}
       defaultValues={actionData?.values}
+      allCategories={loaderData.allCategories}
     />
   );
 }

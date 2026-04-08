@@ -30,14 +30,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { cn } from "~/lib/utils";
-import { formatDate } from "~/lib/utils/date";
-import type { SerializedApplication } from "~/lib/models/application.types";
 import {
   APPLICATION_STATUSES,
   STATUS_BADGE_CLASSES,
-  type ApplicationStatus,
-} from "~/lib/schemas/application.schema";
+} from "~/lib/constants/application.constants";
+import type {
+  ApplicationStatus,
+  SerializedApplication,
+} from "~/lib/models/application.types";
+import { cn } from "~/lib/utils";
+import { formatDate } from "~/lib/utils/date";
 
 export function ApplicationCard({ app }: { app: SerializedApplication }) {
   const deleteFetcher = useFetcher();
@@ -121,6 +123,18 @@ export function ApplicationCard({ app }: { app: SerializedApplication }) {
           <div className="text-muted-foreground">{app.contactPhone}</div>
           <div className="text-muted-foreground">{app.contactEmail}</div>
         </div>
+        {app.categories.length > 0 ? (
+          <div className="flex flex-wrap gap-2 border-t pt-3">
+            {app.categories.map((cat) => (
+              <span
+                key={cat}
+                className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground ring-1 ring-foreground/10"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className="flex gap-x-4 border-t pt-3 text-xs whitespace-nowrap text-muted-foreground">
           <div>Created {formatDate(app.createdAt)}</div>
           <div>Last updated {formatDate(app.updatedAt)}</div>

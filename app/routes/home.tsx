@@ -10,10 +10,8 @@ import {
   listApplications,
   updateApplicationStatus,
 } from "~/lib/models/application.queries.server";
-import {
-  applicationStatusValues,
-  type ApplicationStatus,
-} from "~/lib/schemas/application.schema";
+import { applicationStatusValues } from "~/lib/constants/application.constants";
+import type { ApplicationStatus } from "~/lib/models/application.types";
 
 export function meta(_: Route.MetaArgs) {
   return [{ title: "Apply-tude — Your applications" }];

@@ -13,11 +13,11 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { getApplicationBySlug } from "~/lib/models/application.queries.server";
 import {
   getStatusLabel,
   STATUS_BADGE_CLASSES,
-} from "~/lib/schemas/application.schema";
+} from "~/lib/constants/application.constants";
+import { getApplicationBySlug } from "~/lib/models/application.queries.server";
 import { cn } from "~/lib/utils";
 import { formatDate } from "~/lib/utils/date";
 
@@ -102,6 +102,27 @@ export default function ApplicationDetail({
               </dd>
             </div>
           </dl>
+
+          {application.categories.length > 0 ? (
+            <>
+              <Separator />
+              <div className="space-y-2">
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Categories
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {application.categories.map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground ring-1 ring-foreground/10"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : null}
 
           <Separator />
 

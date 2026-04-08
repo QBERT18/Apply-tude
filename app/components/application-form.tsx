@@ -1,6 +1,7 @@
 import { Form, Link, useNavigation } from "react-router";
+import { Mail, Phone, User } from "lucide-react";
 
-import { cn } from "~/lib/utils";
+import { CategoryInput } from "~/components/form/category-input";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Card,
@@ -9,8 +10,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Field, FieldError, FieldLabel } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "~/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -22,52 +29,28 @@ import { Separator } from "~/components/ui/separator";
 import {
   APPLICATION_STATUSES,
   DEFAULT_APPLICATION_STATUS,
-  type ApplicationFieldErrors,
-  type ApplicationInput,
+} from "~/lib/constants/application.constants";
+import type {
+  ApplicationFieldErrors,
+  ApplicationInput,
 } from "~/lib/schemas/application.schema";
+import { cn } from "~/lib/utils";
 
 type ApplicationFormProps = {
   defaultValues?: Partial<ApplicationInput>;
   submitLabel: string;
   errors?: ApplicationFieldErrors;
   cancelHref?: string;
+  allCategories?: string[];
 };
 
-type FieldRowProps = {
-  id: keyof ApplicationInput;
-  label: string;
-  type?: string;
-  defaultValue?: string;
-  errors?: string[];
-};
+function toFieldErrors(messages?: string[]) {
+  return messages?.map((message) => ({ message }));
+}
 
-function FieldRow({
-  id,
-  label,
-  type = "text",
-  defaultValue,
-  errors,
-}: FieldRowProps) {
-  const hasError = Boolean(errors?.length);
-  return (
-    <div className="grid gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        name={id}
-        type={type}
-        defaultValue={defaultValue ?? ""}
-        required
-        aria-invalid={hasError || undefined}
-        aria-describedby={hasError ? `${id}-error` : undefined}
-      />
-      {hasError ? (
-        <p id={`${id}-error`} className="text-xs text-destructive">
-          {errors?.[0]}
-        </p>
-      ) : null}
-    </div>
-  );
+function stripProtocol(url?: string) {
+  if (!url) return "";
+  return url.replace(/^https?:\/\//, "");
 }
 
 export function ApplicationForm({
@@ -75,6 +58,7 @@ export function ApplicationForm({
   submitLabel,
   errors,
   cancelHref = "/",
+  allCategories = [],
 }: ApplicationFormProps) {
   const navigation = useNavigation();
   const submitting = navigation.state !== "idle";
@@ -83,38 +67,81 @@ export function ApplicationForm({
     <Form method="post" noValidate={false}>
       <Card>
         <CardHeader>
-          <CardTitle>{submitLabel === "Create" ? "New application" : "Edit application"}</CardTitle>
+          <CardTitle>
+            {submitLabel === "Create" ? "New application" : "Edit application"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <FieldRow
-              id="jobName"
-              label="Job name"
-              defaultValue={defaultValues?.jobName}
-              errors={errors?.jobName}
-            />
-            <FieldRow
-              id="companyName"
-              label="Company name"
-              defaultValue={defaultValues?.companyName}
-              errors={errors?.companyName}
-            />
-            <FieldRow
-              id="companyWebpage"
-              label="Company webpage"
-              type="url"
-              defaultValue={defaultValues?.companyWebpage}
-              errors={errors?.companyWebpage}
-            />
-            <FieldRow
-              id="applicationEmail"
-              label="Application email"
-              type="email"
-              defaultValue={defaultValues?.applicationEmail}
-              errors={errors?.applicationEmail}
-            />
-            <div className="grid gap-2">
-              <Label htmlFor="status">Status</Label>
+            <Field>
+              <FieldLabel htmlFor="jobName">Job name</FieldLabel>
+              <Input
+                id="jobName"
+                name="jobName"
+                defaultValue={defaultValues?.jobName ?? ""}
+                required
+                aria-invalid={errors?.jobName?.length ? true : undefined}
+              />
+              <FieldError errors={toFieldErrors(errors?.jobName)} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="companyName">Company name</FieldLabel>
+              <Input
+                id="companyName"
+                name="companyName"
+                defaultValue={defaultValues?.companyName ?? ""}
+                required
+                aria-invalid={errors?.companyName?.length ? true : undefined}
+              />
+              <FieldError errors={toFieldErrors(errors?.companyName)} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="companyWebpage">Company webpage</FieldLabel>
+              <InputGroup>
+                <InputGroupAddon>
+                  <InputGroupText>https://</InputGroupText>
+                </InputGroupAddon>
+                <InputGroupInput
+                  id="companyWebpage"
+                  name="companyWebpage"
+                  type="text"
+                  placeholder="example.com"
+                  defaultValue={stripProtocol(defaultValues?.companyWebpage)}
+                  required
+                  aria-invalid={
+                    errors?.companyWebpage?.length ? true : undefined
+                  }
+                />
+              </InputGroup>
+              <FieldError errors={toFieldErrors(errors?.companyWebpage)} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="applicationEmail">
+                Application email
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  id="applicationEmail"
+                  name="applicationEmail"
+                  type="email"
+                  defaultValue={defaultValues?.applicationEmail ?? ""}
+                  required
+                  aria-invalid={
+                    errors?.applicationEmail?.length ? true : undefined
+                  }
+                />
+                <InputGroupAddon align="inline-end">
+                  <Mail />
+                </InputGroupAddon>
+              </InputGroup>
+              <FieldError errors={toFieldErrors(errors?.applicationEmail)} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="status">Status</FieldLabel>
               <Select
                 name="status"
                 defaultValue={
@@ -132,11 +159,14 @@ export function ApplicationForm({
                   ))}
                 </SelectContent>
               </Select>
-              {errors?.status?.[0] ? (
-                <p className="text-xs text-destructive">{errors.status[0]}</p>
-              ) : null}
-            </div>
+              <FieldError errors={toFieldErrors(errors?.status)} />
+            </Field>
           </div>
+
+          <CategoryInput
+            defaultValues={defaultValues?.categories}
+            allCategories={allCategories}
+          />
 
           <Separator />
 
@@ -150,26 +180,64 @@ export function ApplicationForm({
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
-              <FieldRow
-                id="contactName"
-                label="Name"
-                defaultValue={defaultValues?.contactName}
-                errors={errors?.contactName}
-              />
-              <FieldRow
-                id="contactPhone"
-                label="Phone"
-                type="tel"
-                defaultValue={defaultValues?.contactPhone}
-                errors={errors?.contactPhone}
-              />
-              <FieldRow
-                id="contactEmail"
-                label="Email"
-                type="email"
-                defaultValue={defaultValues?.contactEmail}
-                errors={errors?.contactEmail}
-              />
+              <Field>
+                <FieldLabel htmlFor="contactName">Name</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    id="contactName"
+                    name="contactName"
+                    defaultValue={defaultValues?.contactName ?? ""}
+                    required
+                    aria-invalid={
+                      errors?.contactName?.length ? true : undefined
+                    }
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <User />
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldError errors={toFieldErrors(errors?.contactName)} />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="contactPhone">Phone</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    id="contactPhone"
+                    name="contactPhone"
+                    type="tel"
+                    defaultValue={defaultValues?.contactPhone ?? ""}
+                    required
+                    aria-invalid={
+                      errors?.contactPhone?.length ? true : undefined
+                    }
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <Phone />
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldError errors={toFieldErrors(errors?.contactPhone)} />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="contactEmail">Email</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    id="contactEmail"
+                    name="contactEmail"
+                    type="email"
+                    defaultValue={defaultValues?.contactEmail ?? ""}
+                    required
+                    aria-invalid={
+                      errors?.contactEmail?.length ? true : undefined
+                    }
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <Mail />
+                  </InputGroupAddon>
+                </InputGroup>
+                <FieldError errors={toFieldErrors(errors?.contactEmail)} />
+              </Field>
             </div>
           </div>
         </CardContent>

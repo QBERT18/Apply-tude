@@ -3,11 +3,11 @@ import {
   ApplicationModel,
   serializeApplication,
 } from "~/lib/models/application.model.server";
-import type { SerializedApplication } from "~/lib/models/application.types";
 import type {
-  ApplicationInput,
   ApplicationStatus,
-} from "~/lib/schemas/application.schema";
+  SerializedApplication,
+} from "~/lib/models/application.types";
+import type { ApplicationInput } from "~/lib/schemas/application.schema";
 
 export async function listApplications(): Promise<SerializedApplication[]> {
   await connectDB();
@@ -62,4 +62,12 @@ export async function updateApplicationStatus(
 export async function deleteApplication(id: string): Promise<void> {
   await connectDB();
   await ApplicationModel.findByIdAndDelete(id).exec();
+}
+
+export async function listAllCategories(): Promise<string[]> {
+  await connectDB();
+  const cats = await ApplicationModel.distinct("categories").exec();
+  return (cats as string[])
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
 }

@@ -1,4 +1,6 @@
-import type { ApplicationStatus } from "~/lib/schemas/application.schema";
+export type { ApplicationStatus } from "~/lib/constants/application.constants";
+
+import type { ApplicationStatus } from "~/lib/constants/application.constants";
 
 export type SerializedApplication = {
   id: string;
@@ -11,6 +13,7 @@ export type SerializedApplication = {
   contactPhone: string;
   contactEmail: string;
   status: ApplicationStatus;
+  categories: string[];
   createdAt: string;
   updatedAt: string;
 };
