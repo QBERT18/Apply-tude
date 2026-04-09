@@ -168,10 +168,10 @@ export function ApplicationCard({
         <div className="shrink-0">{statusSelect}</div>
         <div className="flex shrink-0 items-center gap-2">
           <Link
-            to={`/edit/${app.id}`}
+            to={`/applications/${app.slug}`}
             className={buttonVariants({ size: "sm", variant: "outline" })}
           >
-            Edit
+            View
           </Link>
           {deleteDialog}
         </div>
@@ -230,10 +230,10 @@ export function ApplicationCard({
       </CardContent>
       <CardFooter className="justify-between border-t pt-6">
         <Link
-          to={`/edit/${app.id}`}
+          to={`/applications/${app.slug}`}
           className={buttonVariants({ size: "sm", variant: "outline" })}
         >
-          Edit
+          View
         </Link>
         {deleteDialog}
       </CardFooter>
