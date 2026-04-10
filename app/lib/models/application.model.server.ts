@@ -12,6 +12,7 @@ import {
 } from "~/lib/constants/application.constants";
 
 export interface IApplication {
+  userId: mongoose.Types.ObjectId;
   slug: string;
   jobName: string;
   companyName: string;
@@ -30,10 +31,15 @@ export type IApplicationDocument = HydratedDocument<IApplication>;
 
 const ApplicationSchema = new Schema<IApplication>(
   {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     slug: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       immutable: true,
     },
@@ -67,6 +73,8 @@ const ApplicationSchema = new Schema<IApplication>(
   },
   { timestamps: true }
 );
+
+ApplicationSchema.index({ slug: 1, userId: 1 }, { unique: true });
 
 export const ApplicationModel: Model<IApplication> =
   (mongoose.models.Application as Model<IApplication>) ||

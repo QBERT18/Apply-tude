@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { ArrowLeft, Mail, Phone, User } from "lucide-react";
 
 import type { Route } from "./+types/applications.$slug";
+import { requireUserId } from "~/lib/auth.server";
 import { buttonVariants } from "~/components/ui/button";
 import {
   Card,
@@ -28,8 +29,9 @@ export function meta({ data: loaderData }: Route.MetaArgs) {
   return [{ title }];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const application = await getApplicationBySlug(params.slug);
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  const application = await getApplicationBySlug(params.slug, userId);
   if (!application)
     throw new Response("Application not found", { status: 404 });
   return { application };
@@ -45,7 +47,7 @@ export default function ApplicationDetail({
   return (
     <div className="space-y-4">
       <Link
-        to="/"
+        to="/dashboard"
         className={buttonVariants({ variant: "ghost", size: "sm" })}
       >
         <ArrowLeft /> Back to applications
@@ -185,7 +187,7 @@ export default function ApplicationDetail({
 
         <CardFooter className="flex-col-reverse gap-2 border-t pt-6 sm:flex-row sm:justify-end">
           <Link
-            to="/"
+            to="/dashboard"
             className={cn(
               buttonVariants({ variant: "ghost" }),
               "w-full sm:w-auto"
@@ -194,7 +196,7 @@ export default function ApplicationDetail({
             Back
           </Link>
           <Link
-            to={`/edit/${application.id}`}
+            to={`/dashboard/edit/${application.id}`}
             className={cn(
               buttonVariants({ variant: "outline" }),
               "w-full sm:w-auto"

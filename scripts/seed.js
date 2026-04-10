@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 // Defaults to the local dev DB. To seed the production DB instead,
 // run: NODE_ENV=production node --env-file=.env scripts/seed.js
@@ -10,9 +11,19 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
+const UserSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
+    passwordHash: { type: String, required: true },
+  },
+  { timestamps: true }
+);
+
 const ApplicationSchema = new mongoose.Schema(
   {
-    slug: { type: String, required: true, unique: true, trim: true, immutable: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    slug: { type: String, required: true, trim: true, immutable: true },
     jobName: { type: String, required: true, trim: true },
     companyName: { type: String, required: true, trim: true },
     companyWebpage: { type: String, required: true, trim: true },
@@ -26,6 +37,9 @@ const ApplicationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+ApplicationSchema.index({ slug: 1, userId: 1 }, { unique: true });
+
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
 const Application =
   mongoose.models.Application ||
   mongoose.model("Application", ApplicationSchema);
@@ -273,13 +287,29 @@ async function main() {
   console.log(`Connecting to ${MONGODB_URI}...`);
   await mongoose.connect(MONGODB_URI, { bufferCommands: false });
 
+  // Drop old data
+  await Application.deleteMany({});
+  await User.deleteMany({});
+  console.log("Cleared existing data.");
+
+  // Create admin user
+  const passwordHash = await bcrypt.hash("admin", 10);
+  const admin = await User.create({
+    name: "admin",
+    email: "admin@admin.de",
+    passwordHash,
+  });
+  console.log(`Created admin user: ${admin.email} (id: ${admin._id})`);
+
+  // Seed applications for admin
   const docs = entries.map((entry) => ({
     ...entry,
+    userId: admin._id,
     slug: makeSlug(entry.jobName, entry.companyName),
   }));
 
   const inserted = await Application.insertMany(docs);
-  console.log(`Inserted ${inserted.length} application(s).`);
+  console.log(`Inserted ${inserted.length} application(s) for admin.`);
 
   const total = await Application.countDocuments();
   console.log(`Total applications in DB: ${total}`);

@@ -2,6 +2,7 @@ import { redirect, useActionData } from "react-router";
 import { flattenError } from "zod";
 
 import type { Route } from "./+types/edit.$id";
+import { requireUserId } from "~/lib/auth.server";
 import { ApplicationForm } from "~/components/application-form";
 import {
   getApplicationById,
@@ -17,10 +18,11 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "Edit application — Apply-tude" }];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
   const [application, allCategories] = await Promise.all([
-    getApplicationById(params.id),
-    listAllCategories(),
+    getApplicationById(params.id, userId),
+    listAllCategories(userId),
   ]);
   if (!application)
     throw new Response("Application not found", { status: 404 });
@@ -28,6 +30,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export async function action({ request, params }: Route.ActionArgs) {
+  const userId = await requireUserId(request);
   const formData = await request.formData();
   const webpage = String(formData.get("companyWebpage") ?? "").trim();
   const raw = {
@@ -43,9 +46,9 @@ export async function action({ request, params }: Route.ActionArgs) {
       values: raw as Partial<ApplicationInput>,
     };
   }
-  const updated = await updateApplication(params.id, parsed.data);
+  const updated = await updateApplication(params.id, userId, parsed.data);
   if (!updated) throw new Response("Application not found", { status: 404 });
-  return redirect(`/applications/${updated.slug}`);
+  return redirect(`/dashboard/applications/${updated.slug}`);
 }
 
 export default function EditApplication({ loaderData }: Route.ComponentProps) {
@@ -56,7 +59,7 @@ export default function EditApplication({ loaderData }: Route.ComponentProps) {
       submitLabel="Save changes"
       defaultValues={actionData?.values ?? application}
       errors={actionData?.errors}
-      cancelHref={`/applications/${application.slug}`}
+      cancelHref={`/dashboard/applications/${application.slug}`}
       allCategories={allCategories}
     />
   );

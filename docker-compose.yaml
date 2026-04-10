@@ -1,9 +1,48 @@
+networks:
+  apply-tude-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mongo-dev-data:
+
 services:
+  app:
+    build: .
+    container_name: apply-tude-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/apply-tude
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - apply-tude-network
+
   mongo:
     image: mongo:7
-    container_name: applytude-mongo
+    container_name: apply-tude-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - apply-tude-network
+
+  mongo-dev:
+    image: mongo:7
+    container_name: apply-tude-mongo-dev
     restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo-data:/data/db
+      - mongo-dev-data:/data/db

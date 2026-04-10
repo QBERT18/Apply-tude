@@ -1,0 +1,53 @@
+import { createCookieSessionStorage, redirect } from "react-router";
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} is not set. Add it to your .env file.`);
+  return value;
+}
+
+const sessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: "__session",
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    secrets: [requireEnv("SESSION_SECRET")],
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  },
+});
+
+function getUserSession(request: Request) {
+  return sessionStorage.getSession(request.headers.get("Cookie"));
+}
+
+export async function getUserId(request: Request): Promise<string | null> {
+  const session = await getUserSession(request);
+  const userId = session.get("userId");
+  return typeof userId === "string" ? userId : null;
+}
+
+export async function requireUserId(request: Request): Promise<string> {
+  const userId = await getUserId(request);
+  if (!userId) throw redirect("/login");
+  return userId;
+}
+
+export async function createUserSession(
+  userId: string,
+  redirectTo: string
+) {
+  const session = await sessionStorage.getSession();
+  session.set("userId", userId);
+  return redirect(redirectTo, {
+    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+  });
+}
+
+export async function logout(request: Request) {
+  const session = await getUserSession(request);
+  return redirect("/", {
+    headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
+  });
+}

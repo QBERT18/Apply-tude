@@ -2,6 +2,7 @@ import { redirect, useActionData } from "react-router";
 import { flattenError } from "zod";
 
 import type { Route } from "./+types/new";
+import { requireUserId } from "~/lib/auth.server";
 import { ApplicationForm } from "~/components/application-form";
 import {
   createApplication,
@@ -17,11 +18,13 @@ export function meta(_: Route.MetaArgs) {
   return [{ title: "New application — Apply-tude" }];
 }
 
-export async function loader(_: Route.LoaderArgs) {
-  return { allCategories: await listAllCategories() };
+export async function loader({ request }: Route.LoaderArgs) {
+  const userId = await requireUserId(request);
+  return { allCategories: await listAllCategories(userId) };
 }
 
 export async function action({ request }: Route.ActionArgs) {
+  const userId = await requireUserId(request);
   const formData = await request.formData();
   const webpage = String(formData.get("companyWebpage") ?? "").trim();
   const raw = {
@@ -41,8 +44,8 @@ export async function action({ request }: Route.ActionArgs) {
     parsed.data.jobName,
     parsed.data.companyName
   );
-  await createApplication({ ...parsed.data, slug });
-  return redirect(`/applications/${slug}`);
+  await createApplication(userId, { ...parsed.data, slug });
+  return redirect(`/dashboard/applications/${slug}`);
 }
 
 export default function NewApplication({ loaderData }: Route.ComponentProps) {

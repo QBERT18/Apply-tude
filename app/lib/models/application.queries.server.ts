@@ -11,11 +11,12 @@ import type {
 import type { ApplicationInput } from "~/lib/schemas/application.schema";
 
 export async function listApplications(
+  userId: string,
   params: ListApplicationsParams = {}
 ): Promise<SerializedApplication[]> {
   await connectDB();
 
-  const filter: Record<string, unknown> = {};
+  const filter: Record<string, unknown> = { userId };
 
   if (params.categories && params.categories.length > 0) {
     filter.categories = { $in: params.categories };
@@ -38,56 +39,69 @@ export async function listApplications(
 
 export async function getApplicationById(
   id: string,
+  userId: string
 ): Promise<SerializedApplication | null> {
   await connectDB();
-  const doc = await ApplicationModel.findById(id).exec();
+  const doc = await ApplicationModel.findOne({ _id: id, userId }).exec();
   return doc ? serializeApplication(doc) : null;
 }
 
 export async function getApplicationBySlug(
   slug: string,
+  userId: string
 ): Promise<SerializedApplication | null> {
   await connectDB();
-  const doc = await ApplicationModel.findOne({ slug }).exec();
+  const doc = await ApplicationModel.findOne({ slug, userId }).exec();
   return doc ? serializeApplication(doc) : null;
 }
 
 export async function createApplication(
-  data: ApplicationInput & { slug: string },
+  userId: string,
+  data: ApplicationInput & { slug: string }
 ): Promise<SerializedApplication> {
   await connectDB();
-  const doc = await ApplicationModel.create(data);
+  const doc = await ApplicationModel.create({ ...data, userId });
   return serializeApplication(doc);
 }
 
 export async function updateApplication(
   id: string,
-  data: ApplicationInput,
+  userId: string,
+  data: ApplicationInput
 ): Promise<SerializedApplication | null> {
   await connectDB();
-  const doc = await ApplicationModel.findByIdAndUpdate(id, data, {
-    returnDocument: "after",
-  }).exec();
+  const doc = await ApplicationModel.findOneAndUpdate(
+    { _id: id, userId },
+    data,
+    { returnDocument: "after" }
+  ).exec();
   return doc ? serializeApplication(doc) : null;
 }
 
 export async function updateApplicationStatus(
   id: string,
-  status: ApplicationStatus,
+  userId: string,
+  status: ApplicationStatus
 ): Promise<boolean> {
   await connectDB();
-  const doc = await ApplicationModel.findByIdAndUpdate(id, { status }).exec();
+  const doc = await ApplicationModel.findOneAndUpdate(
+    { _id: id, userId },
+    { status }
+  ).exec();
   return doc !== null;
 }
 
-export async function deleteApplication(id: string): Promise<void> {
+export async function deleteApplication(
+  id: string,
+  userId: string
+): Promise<void> {
   await connectDB();
-  await ApplicationModel.findByIdAndDelete(id).exec();
+  await ApplicationModel.findOneAndDelete({ _id: id, userId }).exec();
 }
 
-export async function listAllCategories(): Promise<string[]> {
+export async function listAllCategories(userId: string): Promise<string[]> {
   await connectDB();
-  const cats = await ApplicationModel.distinct("categories").exec();
+  const cats = await ApplicationModel.distinct("categories", { userId }).exec();
   return (cats as string[])
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
