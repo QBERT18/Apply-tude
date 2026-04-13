@@ -60,228 +60,176 @@ function makeSlug(jobName, companyName) {
   return base ? `${base}-${suffix}` : suffix;
 }
 
-const entries = [
-  {
-    jobName: "Senior Frontend Engineer",
-    companyName: "Stripe",
-    companyWebpage: "https://stripe.com",
-    applicationEmail: "careers@stripe.com",
-    contactName: "Alex Chen",
-    contactPhone: "+1-415-555-0101",
-    contactEmail: "alex.chen@stripe.com",
-    status: "interviewing",
-    categories: ["Frontend", "Senior", "Remote"],
-  },
-  {
-    jobName: "Backend Engineer",
-    companyName: "Notion",
-    companyWebpage: "https://notion.so",
-    applicationEmail: "jobs@notion.so",
-    contactName: "Priya Patel",
-    contactPhone: "+1-415-555-0102",
-    contactEmail: "priya@notion.so",
-    status: "applied",
-    categories: ["Backend", "Remote", "Mid"],
-  },
-  {
-    jobName: "Full-Stack Engineer",
-    companyName: "Linear",
-    companyWebpage: "https://linear.app",
-    applicationEmail: "hiring@linear.app",
-    contactName: "Marcus Hoffman",
-    contactPhone: "+49-30-555-0103",
-    contactEmail: "marcus@linear.app",
-    status: "offer",
-    categories: ["Full-Stack", "Remote", "Senior", "Startup"],
-  },
-  {
-    jobName: "iOS Developer",
-    companyName: "Apple",
-    companyWebpage: "https://apple.com",
-    applicationEmail: "jobs@apple.com",
-    contactName: "Sarah Kim",
-    contactPhone: "+1-408-555-0104",
-    contactEmail: "skim@apple.com",
-    status: "saved",
-    categories: ["Mobile", "iOS", "Onsite", "Enterprise"],
-  },
-  {
-    jobName: "DevOps Engineer",
-    companyName: "GitLab",
-    companyWebpage: "https://gitlab.com",
-    applicationEmail: "careers@gitlab.com",
-    contactName: "Tomáš Novák",
-    contactPhone: "+420-2-555-0105",
-    contactEmail: "tomas@gitlab.com",
-    status: "accepted",
-    categories: ["DevOps", "Remote", "Senior"],
-  },
-  {
-    jobName: "Junior Software Engineer",
-    companyName: "Shopify",
-    companyWebpage: "https://shopify.com",
-    applicationEmail: "talent@shopify.com",
-    contactName: "Olivia Brown",
-    contactPhone: "+1-613-555-0106",
-    contactEmail: "olivia@shopify.com",
-    status: "rejected",
-    categories: ["Junior", "Remote", "Full-Stack"],
-  },
-  {
-    jobName: "Data Engineer",
-    companyName: "Snowflake",
-    companyWebpage: "https://snowflake.com",
-    applicationEmail: "careers@snowflake.com",
-    contactName: "Vikram Iyer",
-    contactPhone: "+1-650-555-0107",
-    contactEmail: "vikram@snowflake.com",
-    status: "applied",
-    categories: ["Data", "Senior", "Hybrid"],
-  },
-  {
-    jobName: "Machine Learning Engineer",
-    companyName: "Anthropic",
-    companyWebpage: "https://anthropic.com",
-    applicationEmail: "jobs@anthropic.com",
-    contactName: "Hannah Lee",
-    contactPhone: "+1-415-555-0108",
-    contactEmail: "hannah@anthropic.com",
-    status: "interviewing",
-    categories: ["ML", "Senior", "Hybrid"],
-  },
-  {
-    jobName: "Site Reliability Engineer",
-    companyName: "Cloudflare",
-    companyWebpage: "https://cloudflare.com",
-    applicationEmail: "hiring@cloudflare.com",
-    contactName: "Diego Ramirez",
-    contactPhone: "+1-415-555-0109",
-    contactEmail: "diego@cloudflare.com",
-    status: "applied",
-    categories: ["DevOps", "Senior", "Remote"],
-  },
-  {
-    jobName: "Engineering Manager",
-    companyName: "Vercel",
-    companyWebpage: "https://vercel.com",
-    applicationEmail: "careers@vercel.com",
-    contactName: "Emma Wilson",
-    contactPhone: "+1-415-555-0110",
-    contactEmail: "emma@vercel.com",
-    status: "withdrawn",
-    categories: ["Management", "Remote", "Senior"],
-  },
-  {
-    jobName: "Frontend Developer",
-    companyName: "Figma",
-    companyWebpage: "https://figma.com",
-    applicationEmail: "jobs@figma.com",
-    contactName: "Yuki Tanaka",
-    contactPhone: "+1-415-555-0111",
-    contactEmail: "yuki@figma.com",
-    status: "interviewing",
-    categories: ["Frontend", "Mid", "Remote"],
-  },
-  {
-    jobName: "Backend Engineer",
-    companyName: "Supabase",
-    companyWebpage: "https://supabase.com",
-    applicationEmail: "hiring@supabase.com",
-    contactName: "Liam O'Connor",
-    contactPhone: "+353-1-555-0112",
-    contactEmail: "liam@supabase.com",
-    status: "applied",
-    categories: ["Backend", "Remote", "Startup"],
-  },
-  {
-    jobName: "Platform Engineer",
-    companyName: "Render",
-    companyWebpage: "https://render.com",
-    applicationEmail: "talent@render.com",
-    contactName: "Sofia Garcia",
-    contactPhone: "+1-415-555-0113",
-    contactEmail: "sofia@render.com",
-    status: "saved",
-    categories: ["Platform", "Remote", "Senior"],
-  },
-  {
-    jobName: "Product Engineer",
-    companyName: "Linear",
-    companyWebpage: "https://linear.app",
-    applicationEmail: "hiring@linear.app",
-    contactName: "Marcus Hoffman",
-    contactPhone: "+49-30-555-0114",
-    contactEmail: "marcus@linear.app",
-    status: "ghosted",
-    categories: ["Full-Stack", "Mid", "Remote"],
-  },
-  {
-    jobName: "Staff Software Engineer",
-    companyName: "Discord",
-    companyWebpage: "https://discord.com",
-    applicationEmail: "jobs@discord.com",
-    contactName: "Nathan Park",
-    contactPhone: "+1-415-555-0115",
-    contactEmail: "nathan@discord.com",
-    status: "interviewing",
-    categories: ["Staff", "Remote", "Backend"],
-  },
-  {
-    jobName: "Mobile Engineer",
-    companyName: "Robinhood",
-    companyWebpage: "https://robinhood.com",
-    applicationEmail: "careers@robinhood.com",
-    contactName: "Isabella Rossi",
-    contactPhone: "+1-650-555-0116",
-    contactEmail: "isabella@robinhood.com",
-    status: "rejected",
-    categories: ["Mobile", "Android", "Mid"],
-  },
-  {
-    jobName: "Solutions Architect",
-    companyName: "Amazon Web Services",
-    companyWebpage: "https://aws.amazon.com",
-    applicationEmail: "aws-jobs@amazon.com",
-    contactName: "Robert Müller",
-    contactPhone: "+49-30-555-0117",
-    contactEmail: "robmuller@amazon.com",
-    status: "saved",
-    categories: ["Architecture", "Hybrid", "Senior", "Enterprise"],
-  },
-  {
-    jobName: "Tech Lead",
-    companyName: "Datadog",
-    companyWebpage: "https://datadoghq.com",
-    applicationEmail: "hiring@datadoghq.com",
-    contactName: "Aisha Khan",
-    contactPhone: "+1-212-555-0118",
-    contactEmail: "aisha@datadoghq.com",
-    status: "offer",
-    categories: ["Tech Lead", "Senior", "Remote"],
-  },
-  {
-    jobName: "Frontend Engineer",
-    companyName: "Vercel",
-    companyWebpage: "https://vercel.com",
-    applicationEmail: "careers@vercel.com",
-    contactName: "Emma Wilson",
-    contactPhone: "+1-415-555-0119",
-    contactEmail: "emma@vercel.com",
-    status: "applied",
-    categories: ["Frontend", "Mid", "Remote"],
-  },
-  {
-    jobName: "Security Engineer",
-    companyName: "HashiCorp",
-    companyWebpage: "https://hashicorp.com",
-    applicationEmail: "jobs@hashicorp.com",
-    contactName: "Daniel Kowalski",
-    contactPhone: "+1-415-555-0120",
-    contactEmail: "daniel@hashicorp.com",
-    status: "interviewing",
-    categories: ["Security", "Senior", "Remote"],
-  },
+// ---------------------------------------------------------------------------
+// Data pools
+// ---------------------------------------------------------------------------
+
+const companies = [
+  { name: "Stripe", url: "https://stripe.com", email: "careers@stripe.com" },
+  { name: "Notion", url: "https://notion.so", email: "jobs@notion.so" },
+  { name: "Linear", url: "https://linear.app", email: "hiring@linear.app" },
+  { name: "Apple", url: "https://apple.com", email: "jobs@apple.com" },
+  { name: "GitLab", url: "https://gitlab.com", email: "careers@gitlab.com" },
+  { name: "Shopify", url: "https://shopify.com", email: "talent@shopify.com" },
+  { name: "Snowflake", url: "https://snowflake.com", email: "careers@snowflake.com" },
+  { name: "Anthropic", url: "https://anthropic.com", email: "jobs@anthropic.com" },
+  { name: "Cloudflare", url: "https://cloudflare.com", email: "hiring@cloudflare.com" },
+  { name: "Vercel", url: "https://vercel.com", email: "careers@vercel.com" },
+  { name: "Figma", url: "https://figma.com", email: "jobs@figma.com" },
+  { name: "Supabase", url: "https://supabase.com", email: "hiring@supabase.com" },
+  { name: "Render", url: "https://render.com", email: "talent@render.com" },
+  { name: "Discord", url: "https://discord.com", email: "jobs@discord.com" },
+  { name: "Robinhood", url: "https://robinhood.com", email: "careers@robinhood.com" },
+  { name: "Amazon Web Services", url: "https://aws.amazon.com", email: "aws-jobs@amazon.com" },
+  { name: "Datadog", url: "https://datadoghq.com", email: "hiring@datadoghq.com" },
+  { name: "HashiCorp", url: "https://hashicorp.com", email: "jobs@hashicorp.com" },
+  { name: "Twilio", url: "https://twilio.com", email: "careers@twilio.com" },
+  { name: "Plaid", url: "https://plaid.com", email: "jobs@plaid.com" },
+  { name: "Retool", url: "https://retool.com", email: "hiring@retool.com" },
+  { name: "Postman", url: "https://postman.com", email: "careers@postman.com" },
+  { name: "MongoDB", url: "https://mongodb.com", email: "jobs@mongodb.com" },
+  { name: "Grafana Labs", url: "https://grafana.com", email: "hiring@grafana.com" },
+  { name: "Sentry", url: "https://sentry.io", email: "careers@sentry.io" },
+  { name: "Netlify", url: "https://netlify.com", email: "jobs@netlify.com" },
+  { name: "PlanetScale", url: "https://planetscale.com", email: "hiring@planetscale.com" },
+  { name: "Tailwind Labs", url: "https://tailwindcss.com", email: "jobs@tailwindlabs.com" },
+  { name: "Railway", url: "https://railway.app", email: "careers@railway.app" },
+  { name: "Fly.io", url: "https://fly.io", email: "jobs@fly.io" },
 ];
+
+const jobTitles = [
+  "Senior Frontend Engineer",
+  "Backend Engineer",
+  "Full-Stack Engineer",
+  "iOS Developer",
+  "DevOps Engineer",
+  "Junior Software Engineer",
+  "Data Engineer",
+  "Machine Learning Engineer",
+  "Site Reliability Engineer",
+  "Engineering Manager",
+  "Frontend Developer",
+  "Platform Engineer",
+  "Product Engineer",
+  "Staff Software Engineer",
+  "Mobile Engineer",
+  "Solutions Architect",
+  "Tech Lead",
+  "Security Engineer",
+  "Cloud Engineer",
+  "QA Engineer",
+  "Infrastructure Engineer",
+  "API Engineer",
+  "React Developer",
+  "Node.js Engineer",
+  "Systems Engineer",
+];
+
+const contactFirstNames = [
+  "Alex", "Priya", "Marcus", "Sarah", "Emma", "Olivia", "Vikram", "Hannah",
+  "Diego", "Yuki", "Liam", "Sofia", "Nathan", "Isabella", "Daniel", "Aisha",
+  "Robert", "Chen", "Fatima", "Kenji", "Anna", "James", "Maya", "Oscar", "Zara",
+];
+
+const contactLastNames = [
+  "Chen", "Patel", "Hoffman", "Kim", "Wilson", "Brown", "Iyer", "Lee",
+  "Ramirez", "Tanaka", "O'Connor", "Garcia", "Park", "Rossi", "Kowalski",
+  "Khan", "Müller", "Zhang", "Hassan", "Nakamura", "Schmidt", "Taylor",
+  "Singh", "Fernandez", "Larsson",
+];
+
+const categoryPools = [
+  ["Frontend", "React", "Remote"],
+  ["Backend", "Node.js", "Remote"],
+  ["Full-Stack", "Remote", "Startup"],
+  ["Mobile", "iOS", "Onsite"],
+  ["DevOps", "Cloud", "Remote"],
+  ["Data", "Python", "Hybrid"],
+  ["ML", "AI", "Remote"],
+  ["Security", "Cloud", "Onsite"],
+  ["Management", "Leadership", "Hybrid"],
+  ["Frontend", "TypeScript", "Hybrid"],
+  ["Backend", "Go", "Remote"],
+  ["Full-Stack", "Senior", "Enterprise"],
+  ["Platform", "Kubernetes", "Remote"],
+  ["Mobile", "Android", "Onsite"],
+  ["Infrastructure", "AWS", "Remote"],
+];
+
+const seniority = ["Junior", "Mid", "Senior", "Staff", "Lead"];
+
+// Status distribution: ~30 applied, ~20 interviewing, ~15 rejected,
+// ~10 ghosted, ~8 saved, ~7 offer, ~5 accepted, ~5 withdrawn
+const statusPool = [
+  ...Array(30).fill("applied"),
+  ...Array(20).fill("interviewing"),
+  ...Array(15).fill("rejected"),
+  ...Array(10).fill("ghosted"),
+  ...Array(8).fill("saved"),
+  ...Array(7).fill("offer"),
+  ...Array(5).fill("accepted"),
+  ...Array(5).fill("withdrawn"),
+];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Generate a random date within a month range (months ago from now).
+// More recent months get more applications (weighted distribution).
+function randomDateInPastYear() {
+  const now = new Date();
+  // Weight toward recent months: pick from 0–11 with bias toward lower numbers
+  const r = Math.random();
+  const monthsAgo = Math.floor(Math.pow(r, 0.6) * 12); // bias toward recent
+  const targetMonth = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1);
+  const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+  const day = 1 + Math.floor(Math.random() * daysInMonth);
+  const hour = Math.floor(Math.random() * 14) + 8; // 8am–10pm
+  const minute = Math.floor(Math.random() * 60);
+  return new Date(targetMonth.getFullYear(), targetMonth.getMonth(), day, hour, minute);
+}
+
+function generateEntries(count) {
+  const statuses = shuffle(statusPool).slice(0, count);
+  const entries = [];
+
+  for (let i = 0; i < count; i++) {
+    const company = pick(companies);
+    const jobTitle = pick(jobTitles);
+    const firstName = pick(contactFirstNames);
+    const lastName = pick(contactLastNames);
+    const cats = [...pick(categoryPools), pick(seniority)];
+    const createdAt = randomDateInPastYear();
+    // updatedAt is 0–14 days after createdAt
+    const updatedAt = new Date(createdAt.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000);
+
+    entries.push({
+      jobName: jobTitle,
+      companyName: company.name,
+      companyWebpage: company.url,
+      applicationEmail: company.email,
+      contactName: `${firstName} ${lastName}`,
+      contactPhone: `+1-555-${String(1000 + i).slice(-4)}`,
+      contactEmail: `${firstName.toLowerCase()}@${company.url.replace("https://", "")}`,
+      status: statuses[i],
+      categories: [...new Set(cats)],
+      createdAt,
+      updatedAt,
+    });
+  }
+
+  return entries;
+}
 
 async function main() {
   console.log(`Connecting to ${MONGODB_URI}...`);
@@ -301,18 +249,29 @@ async function main() {
   });
   console.log(`Created admin user: ${admin.email} (id: ${admin._id})`);
 
-  // Seed applications for admin
+  // Generate 100 applications
+  const entries = generateEntries(100);
+
+  // Use raw collection insert to set createdAt/updatedAt directly
+  // (bypasses Mongoose timestamps auto-generation)
   const docs = entries.map((entry) => ({
     ...entry,
     userId: admin._id,
     slug: makeSlug(entry.jobName, entry.companyName),
   }));
 
-  const inserted = await Application.insertMany(docs);
-  console.log(`Inserted ${inserted.length} application(s) for admin.`);
+  await Application.collection.insertMany(docs);
+  console.log(`Inserted ${docs.length} application(s) for admin.`);
 
   const total = await Application.countDocuments();
   console.log(`Total applications in DB: ${total}`);
+
+  // Print status breakdown
+  const statusCounts = {};
+  for (const doc of docs) {
+    statusCounts[doc.status] = (statusCounts[doc.status] || 0) + 1;
+  }
+  console.log("Status breakdown:", statusCounts);
 
   await mongoose.disconnect();
 }
