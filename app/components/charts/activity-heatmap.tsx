@@ -15,11 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { ChartEmptyState } from "./chart-empty-state";
 import type { ActivityHeatmapDatum } from "./charts.types";
 
@@ -93,7 +88,7 @@ export function ActivityHeatmap({
         {!hasActivity ? (
           <ChartEmptyState />
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden">
             {/* Month labels */}
             <div
               className="mb-1 grid gap-0.75 text-xs text-muted-foreground"
@@ -113,49 +108,46 @@ export function ActivityHeatmap({
             </div>
 
             {/* Grid: 7 rows (Sun–Sat) × N columns (weeks) */}
-            <div className="flex gap-0.75">
+            <div
+              className="grid gap-0.75"
+              style={{
+                gridTemplateColumns: `24px repeat(${grid.length}, 1fr)`,
+                gridTemplateRows: "repeat(7, 1fr)",
+              }}
+            >
               {/* Day labels */}
-              <div className="flex flex-col gap-0.75">
-                {DAY_LABELS.map((label, i) => (
-                  <div
-                    key={i}
-                    className="flex h-3.5 w-5 items-center justify-end pr-1 text-[10px] text-muted-foreground"
-                  >
-                    {label}
-                  </div>
-                ))}
-              </div>
-
-              {/* Weeks */}
-              {grid.map((week, wi) => (
-                <div key={wi} className="flex flex-col gap-0.75">
-                  {Array.from({ length: 7 }).map((_, di) => {
-                    const cell = week.find(
-                      (c) => getDay(c.date) === di
-                    );
-                    if (!cell) {
-                      return (
-                        <div key={di} className="size-3.5" />
-                      );
-                    }
-                    return (
-                      <Tooltip key={cell.key}>
-                        <TooltipTrigger
-                          render={<div />}
-                          className={`size-3.5 rounded-sm ${getIntensity(cell.count, max)}`}
-                        />
-                        <TooltipContent>
-                          <p className="text-xs">
-                            {cell.count} application
-                            {cell.count !== 1 ? "s" : ""} on{" "}
-                            {format(cell.date, "EEE, MMM d")}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
+              {DAY_LABELS.map((label, i) => (
+                <div
+                  key={`label-${i}`}
+                  className="flex items-center justify-end pr-1 text-[10px] text-muted-foreground"
+                  style={{ gridColumn: 1, gridRow: i + 1 }}
+                >
+                  {label}
                 </div>
               ))}
+
+              {/* Week cells */}
+              {grid.map((week, wi) =>
+                Array.from({ length: 7 }).map((_, di) => {
+                  const cell = week.find((c) => getDay(c.date) === di);
+                  if (!cell) {
+                    return (
+                      <div
+                        key={`empty-${wi}-${di}`}
+                        style={{ gridColumn: wi + 2, gridRow: di + 1 }}
+                      />
+                    );
+                  }
+                  return (
+                    <div
+                      key={cell.key}
+                      title={`${cell.count} application${cell.count !== 1 ? "s" : ""} on ${format(cell.date, "EEE, MMM d")}`}
+                      className={`aspect-square w-full rounded-sm ${getIntensity(cell.count, max)}`}
+                      style={{ gridColumn: wi + 2, gridRow: di + 1 }}
+                    />
+                  );
+                })
+              )}
             </div>
 
             {/* Legend */}

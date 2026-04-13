@@ -3,13 +3,7 @@ import { BarChart3, Plus } from "lucide-react";
 
 import type { Route } from "./+types/home";
 import { requireUserId } from "~/lib/auth.server";
-import {
-  getStatusDistribution,
-  getApplicationsOverTime,
-  getSuccessFunnel,
-  getCategoryDistribution,
-  getActivityHeatmap,
-} from "~/lib/models/application.queries.server";
+import { getDashboardStats } from "~/lib/models/application.queries.server";
 import { Card, CardContent } from "~/components/ui/card";
 import { buttonVariants } from "~/components/ui/button";
 import { StatusDistributionChart } from "~/components/charts/status-distribution-chart";
@@ -27,21 +21,9 @@ export function meta(_: Route.MetaArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await requireUserId(request);
 
-  const [
-    statusRaw,
-    applicationsOverTime,
-    successFunnel,
-    categoryDistribution,
-    activityHeatmap,
-  ] = await Promise.all([
-    getStatusDistribution(userId),
-    getApplicationsOverTime(userId),
-    getSuccessFunnel(userId),
-    getCategoryDistribution(userId),
-    getActivityHeatmap(userId),
-  ]);
+  const stats = await getDashboardStats(userId);
 
-  const statusDistribution = statusRaw.map((d) => ({
+  const statusDistribution = stats.statusDistribution.map((d) => ({
     status: d.status as ApplicationStatus,
     count: d.count,
     fill: `var(--color-${d.status})`,
@@ -59,17 +41,17 @@ export async function loader({ request }: Route.LoaderArgs) {
     accepted: `var(--color-accepted)`,
   };
 
-  const funnel = successFunnel.map((d) => ({
+  const successFunnel = stats.successFunnel.map((d) => ({
     ...d,
     fill: funnelColors[d.stage] ?? "var(--color-applied)",
   }));
 
   return {
     statusDistribution,
-    applicationsOverTime,
-    successFunnel: funnel,
-    categoryDistribution,
-    activityHeatmap,
+    applicationsOverTime: stats.applicationsOverTime,
+    successFunnel,
+    categoryDistribution: stats.categoryDistribution,
+    activityHeatmap: stats.activityHeatmap,
     totalApplications,
   } satisfies DashboardChartData;
 }
@@ -122,10 +104,9 @@ export default function Overview({ loaderData }: Route.ComponentProps) {
 
       <ApplicationsOverTimeChart data={applicationsOverTime} />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <CategoryDistributionChart data={categoryDistribution} />
-        <ActivityHeatmap data={activityHeatmap} />
-      </div>
+      <CategoryDistributionChart data={categoryDistribution} />
+
+      <ActivityHeatmap data={activityHeatmap} />
     </div>
   );
 }
