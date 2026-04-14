@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 import { connectDB } from "~/lib/db.server";
+import { getCached, invalidateCache } from "~/lib/redis.server";
 import {
   ApplicationModel,
   serializeApplication,
@@ -12,31 +13,44 @@ import type {
 } from "~/lib/models/application.types";
 import type { ApplicationInput } from "~/lib/schemas/application.schema";
 
+function filterHash(params: ListApplicationsParams): string {
+  const parts = [
+    params.categories?.sort().join(",") ?? "",
+    params.statuses?.sort().join(",") ?? "",
+    params.sort ?? "updatedAt",
+    params.direction ?? "desc",
+  ];
+  return parts.join("|");
+}
+
 export async function listApplications(
   userId: string,
   params: ListApplicationsParams = {}
 ): Promise<SerializedApplication[]> {
-  await connectDB();
+  const key = `user:${userId}:applications:${filterHash(params)}`;
+  return getCached(key, async () => {
+    await connectDB();
 
-  const filter: Record<string, unknown> = { userId };
+    const filter: Record<string, unknown> = { userId };
 
-  if (params.categories && params.categories.length > 0) {
-    filter.categories = { $in: params.categories };
-  }
+    if (params.categories && params.categories.length > 0) {
+      filter.categories = { $in: params.categories };
+    }
 
-  if (params.statuses && params.statuses.length > 0) {
-    filter.status = { $in: params.statuses };
-  }
+    if (params.statuses && params.statuses.length > 0) {
+      filter.status = { $in: params.statuses };
+    }
 
-  const sortField = params.sort ?? "updatedAt";
-  const sortDir: 1 | -1 = params.direction === "asc" ? 1 : -1;
+    const sortField = params.sort ?? "updatedAt";
+    const sortDir: 1 | -1 = params.direction === "asc" ? 1 : -1;
 
-  const docs = await ApplicationModel.find(filter)
-    .sort({ [sortField]: sortDir })
-    .collation({ locale: "en", strength: 2 })
-    .exec();
+    const docs = await ApplicationModel.find(filter)
+      .sort({ [sortField]: sortDir })
+      .collation({ locale: "en", strength: 2 })
+      .exec();
 
-  return docs.map(serializeApplication);
+    return docs.map(serializeApplication);
+  }, 300);
 }
 
 export async function getApplicationById(
@@ -63,6 +77,7 @@ export async function createApplication(
 ): Promise<SerializedApplication> {
   await connectDB();
   const doc = await ApplicationModel.create({ ...data, userId });
+  await invalidateCache(`user:${userId}:*`);
   return serializeApplication(doc);
 }
 
@@ -77,6 +92,7 @@ export async function updateApplication(
     data,
     { returnDocument: "after" }
   ).exec();
+  await invalidateCache(`user:${userId}:*`);
   return doc ? serializeApplication(doc) : null;
 }
 
@@ -90,6 +106,7 @@ export async function updateApplicationStatus(
     { _id: id, userId },
     { status }
   ).exec();
+  await invalidateCache(`user:${userId}:*`);
   return doc !== null;
 }
 
@@ -99,14 +116,18 @@ export async function deleteApplication(
 ): Promise<void> {
   await connectDB();
   await ApplicationModel.findOneAndDelete({ _id: id, userId }).exec();
+  await invalidateCache(`user:${userId}:*`);
 }
 
 export async function listAllCategories(userId: string): Promise<string[]> {
-  await connectDB();
-  const cats = await ApplicationModel.distinct("categories", { userId }).exec();
-  return (cats as string[])
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
+  const key = `user:${userId}:categories`;
+  return getCached(key, async () => {
+    await connectDB();
+    const cats = await ApplicationModel.distinct("categories", { userId }).exec();
+    return (cats as string[])
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+  }, 600);
 }
 
 // ---------------------------------------------------------------------------
@@ -124,12 +145,14 @@ export type DashboardStatsResult = {
 export async function getDashboardStats(
   userId: string
 ): Promise<DashboardStatsResult> {
-  await connectDB();
-  const uid = new mongoose.Types.ObjectId(userId);
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const key = `user:${userId}:dashboard-stats`;
+  return getCached(key, async () => {
+    await connectDB();
+    const uid = new mongoose.Types.ObjectId(userId);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const [result] = await ApplicationModel.aggregate([
+    const [result] = await ApplicationModel.aggregate([
     { $match: { userId: uid } },
     {
       $facet: {
@@ -189,5 +212,6 @@ export async function getDashboardStats(
     count: (funnelMap.get(stage) as number) ?? 0,
   }));
 
-  return result as DashboardStatsResult;
+    return result as DashboardStatsResult;
+  }, 300);
 }
