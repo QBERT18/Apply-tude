@@ -47,7 +47,7 @@ export default function ApplicationDetail({
   return (
     <div className="space-y-4">
       <Link
-        to="/dashboard"
+        to="/dashboard/applications"
         className={buttonVariants({ variant: "ghost", size: "sm" })}
       >
         <ArrowLeft /> Back to applications
@@ -187,7 +187,7 @@ export default function ApplicationDetail({
 
         <CardFooter className="flex-col-reverse gap-2 border-t pt-6 sm:flex-row sm:justify-end">
           <Link
-            to="/dashboard"
+            to="/dashboard/applications"
             className={cn(
               buttonVariants({ variant: "ghost" }),
               "w-full sm:w-auto"

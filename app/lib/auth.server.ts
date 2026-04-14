@@ -51,3 +51,13 @@ export async function logout(request: Request) {
     headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
   });
 }
+
+export async function getSession(request: Request) {
+  return sessionStorage.getSession(request.headers.get("Cookie"));
+}
+
+export async function commitSession(
+  session: Awaited<ReturnType<typeof sessionStorage.getSession>>
+) {
+  return sessionStorage.commitSession(session);
+}

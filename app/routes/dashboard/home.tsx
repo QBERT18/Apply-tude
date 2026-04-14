@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { BarChart3, Plus } from "lucide-react";
+import { ArrowRight, BarChart3, Plus } from "lucide-react";
 
 import type { Route } from "./+types/home";
 import { requireUserId } from "~/lib/auth.server";
@@ -95,7 +95,16 @@ export default function Overview({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-heading text-2xl font-bold">Overview</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-2xl font-bold">Overview</h1>
+        <Link
+          to="/dashboard/applications"
+          className={buttonVariants()}
+        >
+          Applications
+          <ArrowRight className="size-4" />
+        </Link>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <StatusDistributionChart data={statusDistribution} total={totalApplications} />

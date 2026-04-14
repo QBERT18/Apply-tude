@@ -1,8 +1,8 @@
-import { redirect, useActionData } from "react-router";
+import { data, redirect, useActionData } from "react-router";
 import { flattenError } from "zod";
 
 import type { Route } from "./+types/new";
-import { requireUserId } from "~/lib/auth.server";
+import { commitSession, getSession, requireUserId } from "~/lib/auth.server";
 import { ApplicationForm } from "~/components/application-form";
 import {
   createApplication,
@@ -20,7 +20,19 @@ export function meta(_: Route.MetaArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const userId = await requireUserId(request);
-  return { allCategories: await listAllCategories(userId) };
+  const session = await getSession(request);
+  const flashData = session.get("generatedApplication");
+  const generatedDefaults = flashData
+    ? (JSON.parse(flashData as string) as Partial<ApplicationInput>)
+    : null;
+
+  return data(
+    {
+      allCategories: await listAllCategories(userId),
+      generatedDefaults,
+    },
+    { headers: { "Set-Cookie": await commitSession(session) } }
+  );
 }
 
 export async function action({ request }: Route.ActionArgs) {
@@ -53,8 +65,9 @@ export default function NewApplication({ loaderData }: Route.ComponentProps) {
   return (
     <ApplicationForm
       submitLabel="Create"
+      cancelHref="/dashboard/applications"
       errors={actionData?.errors}
-      defaultValues={actionData?.values}
+      defaultValues={actionData?.values ?? loaderData.generatedDefaults ?? undefined}
       allCategories={loaderData.allCategories}
     />
   );
