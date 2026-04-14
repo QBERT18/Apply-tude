@@ -54,3 +54,8 @@ export type ViewToggleProps = {
   onChange: (value: ViewMode) => void;
   className?: string;
 };
+
+export type GenerateApplicationDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};

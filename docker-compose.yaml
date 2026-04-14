@@ -1,9 +1,108 @@
+networks:
+  apply-tude-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mongo-dev-data:
+  ollama-data:
+  ollama-dev-data:
+  redis-data:
+  redis-dev-data:
+
 services:
+  app:
+    build: .
+    container_name: apply-tude-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/apply-tude
+      OLLAMA_URL: http://ollama:11434
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - apply-tude-network
+
   mongo:
     image: mongo:7
-    container_name: applytude-mongo
+    container_name: apply-tude-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - apply-tude-network
+
+  mongo-dev:
+    image: mongo:7
+    container_name: apply-tude-mongo-dev
     restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo-data:/data/db
+      - mongo-dev-data:/data/db
+
+  ollama:
+    image: ollama/ollama
+    container_name: apply-tude-ollama
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull gemma3:4b && wait"]
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - apply-tude-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: apply-tude-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - apply-tude-network
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: apply-tude-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+
+  ollama-dev:
+    image: ollama/ollama
+    container_name: apply-tude-ollama-dev
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull gemma3:4b && wait"]
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama-dev-data:/root/.ollama

@@ -71,7 +71,7 @@ export function ApplicationCard({
         setStatusValue(next);
         statusFetcher.submit(
           { intent: "update-status", id: app.id, status: next },
-          { method: "post", action: "/?index" }
+          { method: "post", action: "/dashboard/applications" }
         );
       }}
       disabled={isUpdatingStatus}
@@ -124,7 +124,7 @@ export function ApplicationCard({
             onClick={() => {
               deleteFetcher.submit(
                 { intent: "delete", id: app.id },
-                { method: "post", action: "/?index" }
+                { method: "post", action: "/dashboard/applications" }
               );
               setOpen(false);
             }}
@@ -141,7 +141,7 @@ export function ApplicationCard({
       <Card className="flex flex-row items-center gap-4 p-4">
         <div className="min-w-0 flex-1">
           <Link
-            to={`/applications/${app.slug}`}
+            to={`/dashboard/applications/${app.slug}`}
             className="block truncate font-heading text-base font-semibold hover:underline underline-offset-4"
           >
             {app.jobName}
@@ -168,10 +168,10 @@ export function ApplicationCard({
         <div className="shrink-0">{statusSelect}</div>
         <div className="flex shrink-0 items-center gap-2">
           <Link
-            to={`/edit/${app.id}`}
+            to={`/dashboard/applications/${app.slug}`}
             className={buttonVariants({ size: "sm", variant: "outline" })}
           >
-            Edit
+            View
           </Link>
           {deleteDialog}
         </div>
@@ -184,7 +184,7 @@ export function ApplicationCard({
       <CardHeader>
         <CardTitle>
           <Link
-            to={`/applications/${app.slug}`}
+            to={`/dashboard/applications/${app.slug}`}
             className="hover:underline underline-offset-4"
           >
             {app.jobName}
@@ -230,10 +230,10 @@ export function ApplicationCard({
       </CardContent>
       <CardFooter className="justify-between border-t pt-6">
         <Link
-          to={`/edit/${app.id}`}
+          to={`/dashboard/applications/${app.slug}`}
           className={buttonVariants({ size: "sm", variant: "outline" })}
         >
-          Edit
+          View
         </Link>
         {deleteDialog}
       </CardFooter>

@@ -23,7 +23,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   SidebarSeparator,
 } from "~/components/ui/sidebar";
 import {
@@ -70,7 +69,11 @@ function setSingleValue(
 
 export function AppSidebar({ allCategories, ...props }: AppSidebarProps) {
   return (
-    <Sidebar {...props}>
+    <Sidebar
+      collapsible="none"
+      className="sticky top-0 hidden h-svh border-l lg:flex"
+      {...props}
+    >
       <SidebarContent>
         <SidebarSortOptions />
         <SidebarSeparator className="mx-0" />
@@ -81,7 +84,6 @@ export function AppSidebar({ allCategories, ...props }: AppSidebarProps) {
       <SidebarFooter>
         <ClearFiltersButton />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   );
 }
@@ -268,7 +270,7 @@ function ClearFiltersButton() {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard/applications")}
           disabled={!hasFilters}
           className="data-[disabled=true]:opacity-50"
           data-disabled={!hasFilters || undefined}
